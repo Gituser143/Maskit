@@ -1,2 +1,2 @@
 # COVID-19-Mask-Detection-System
-Sanky is gay
+Bhargav is the big gay
