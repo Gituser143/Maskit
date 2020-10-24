@@ -1,5 +1,6 @@
 import socket
 import subprocess
+import os
 
 # Initialise hosts and ports
 serverIP = "192.168.1.3"
@@ -10,6 +11,16 @@ output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
 
 clientIP = output.split()[0]
 clientPort = 8888
+
+
+def captureImage():
+    os.system("rm -f image.jpg")
+    cmd = "raspistill -q 100 -t 200 -o image.jpg"
+    os.system(cmd)
+
+
+# Capture image
+captureImage()
 
 # Connect to server
 s = socket.socket()
