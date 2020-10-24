@@ -68,9 +68,8 @@ def mask_image():
             # has a mask or not
             (mask, withoutMask) = model.predict(face)[0]
 
-            # determine the class label and color we'll use to draw
-            # the bounding box and text
-            label = "Mask" if mask > withoutMask else "No Mask"
+            # 1 means mask was found, 0 if not
+            label = "1" if mask > withoutMask else "0"
             print(label)
 
 
