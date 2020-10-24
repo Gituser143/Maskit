@@ -1,21 +1,34 @@
-import socket               # Import socket module
+import socket
+import subprocess
+import datetime
 
-s = socket.socket()         # Create a socket object
-host = socket.gethostname()  # Get local machine name
-port = 12345                 # Reserve a port for your service.
-s.bind((host, port))        # Bind to the port
-f = open('torecv.png', 'wb')
-s.listen(5)                 # Now wait for client connection.
+s = socket.socket()
+s.bind(("localhost", 9999))
+s.listen(10)  # Accepts up to 10 connections.
+
+i = 1
 while True:
-    c, addr = s.accept()     # Establish connection with client.
-    print('Got connection from', addr)
-    print("Receiving...")
-    l = c.recv(1024)
+    sc, address = s.accept()
+
+    print(address)
+    ct = datetime.datetime.now()
+    filename = str(ct) + ".jpg"
+    f = open(filename, 'wb')  # open in binary
+    l = 1
     while (l):
-        print("Receiving...")
-        f.write(l)
-        l = c.recv(1024)
+        # receive data and write it to file
+        l = sc.recv(1024)
+        while (l):
+            f.write(l)
+            l = sc.recv(1024)
     f.close()
-    print("Done Receiving")
-    c.send('Thank you for connecting'.encode('utf-8'))
-    c.close()                # Close the connection
+
+    # Run model on image
+    cmd = "python3 detect_mask_image.py --image '" + filename + "'"
+    output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
+
+    # Send output back to client
+
+    sc.close()
+
+s.close()

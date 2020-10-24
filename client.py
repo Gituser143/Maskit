@@ -1,19 +1,12 @@
-import socket               # Import socket module
+import socket
+import sys
 
-s = socket.socket()         # Create a socket object
-host = socket.gethostname() # Get local machine name
-port = 12345                 # Reserve a port for your service.
-
-s.connect((host, port))
-s.send("Hello server!".encode('utf-8'))
-f = open('tosend.png','rb')
-print ('Sending...')
+s = socket.socket()
+s.connect(("localhost", 9999))
+f = open("image.jpg", "rb")
 l = f.read(1024)
 while (l):
-    print ('Sending...')
     s.send(l)
     l = f.read(1024)
-f.close()
-print ("Done Sending")
-print (s.recv(1024))
-s.close                     # Close the socket when done
+
+s.close()
