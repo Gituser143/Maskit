@@ -1,7 +1,7 @@
 import socket
 
 # Initialise hosts and ports
-serverIP = "localhost"
+serverIP = "192.168.1.3"
 serverPort = 9999
 
 clientPort = 8888
