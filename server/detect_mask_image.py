@@ -36,6 +36,7 @@ def mask_image():
     net.setInput(blob)
     detections = net.forward()
 
+    masklist = []
     # loop over the detections
     for i in range(0, detections.shape[2]):
         # extract the confidence (i.e., probability) associated with
@@ -70,8 +71,15 @@ def mask_image():
 
             # 1 means mask was found, 0 if not
             label = "1" if mask > withoutMask else "0"
-            print(label)
+            
+            # Append 1 or 0 for everyone in the image captured
+            masklist.append(label)
 
+    # Even if a single person is not wearing a mask we consider status 0
+    if "0" in masklist:
+        print("0")
+    else:
+        print("1")
 
 if __name__ == "__main__":
     mask_image()
