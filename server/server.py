@@ -26,10 +26,10 @@ print("Listening for connections")
 while True:
 
     # Accept connection
-    soc, address = s.accept()
+    sock, address = s.accept()
 
     # Wrap with SSL
-    sc = context.wrap_socket(soc, server_side=True)
+    ssock = context.wrap_socket(sock, server_side=True)
 
     # Get client hostname
     clientIp = address[0]
@@ -39,10 +39,12 @@ while True:
     # Create file with name timestamp
     ct = datetime.datetime.now()
     filename = str(ct) + ".jpg"
-    f = open(filename, 'wb')  # open in binary
+
+    # open in binary
+    f = open(filename, 'wb')
 
     # receive data and write it to file
-    line = sc.recv(1024)
+    line = ssock.recv(1024)
     while (line):
         try:
             if line.decode() == "SENT FILE":
@@ -50,7 +52,7 @@ while True:
         except:
             pass
         f.write(line)
-        line = sc.recv(1024)
+        line = ssock.recv(1024)
     f.close()
     print("Received image")
 
@@ -62,7 +64,7 @@ while True:
 
     # Send output back to client
     print("Sending output")
-    sc.send(output.encode())
+    ssock.send(output.encode())
 
     # Close connection
-    sc.close()
+    ssock.close()

@@ -1,16 +1,11 @@
 import socket
-import subprocess
 import os
 import ssl
+
+
 # Initialise hosts and ports
 serverIP = "192.168.1.3"
 serverPort = 9999
-
-cmd = "hostname -I"
-output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
-
-clientIP = output.split()[0]
-clientPort = 8888
 
 
 def captureImage():
@@ -22,9 +17,11 @@ def captureImage():
 def sendImage(serverIP, serverPort):
 
     # Connect to server
-    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s = ssl.wrap_socket(soc, ssl_version=ssl.PROTOCOL_TLSv1)
-    s.connect((serverIP, serverPort))
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # SSL wrap
+    ssock = ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLSv1)
+    ssock.connect((serverIP, serverPort))
     print("Connected to server")
 
     # Send image
@@ -32,36 +29,41 @@ def sendImage(serverIP, serverPort):
     f = open("image.jpg", "rb")
     line = f.read(1024)
     while (line):
-        s.send(line)
+        ssock.send(line)
         line = f.read(1024)
 
+    # Send finish message
     finish = "SENT FILE"
-    s.send(finish.encode())
+    ssock.send(finish.encode())
     print("Image sent")
 
-    line = s.recv(1024)
+    # Receive classification
+    line = ssock.recv(1024)
     mask = line.decode()
     print("Message:", mask)
+
     # Close connection
-    s.close()
+    ssock.close()
+
+    return int(mask)
 
 
 while(1):
-    # Scan RFID
-
-    # If RFID is valid
-    # Capture image
-    # captureImage()
+    # Scan RFID tag
+    # validRFID = scanRFID()
+    # if validRFID:
+    #   Capture image
+    #   captureImage()
 
     # Send image to server
-    sendImage(serverIP, serverPort)
+    mask = sendImage(serverIP, serverPort)
+    print(mask)
 
-    # Recive classification
-    # mask = receiveClass(clientIP, clientPort)
+    # if Mask == -1
+    #   Restart
+    #   Continue
 
-    # If Mask = -1
-    # Continue (Restart)
+    # if mask == 1
+    #   openDoor()
 
-    # If mask
-    # Rotate motor to open door
     break
