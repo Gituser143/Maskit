@@ -44,13 +44,15 @@ while True:
     # receive data and write it to file
     line = sc.recv(1024)
     while (line):
+        try:
+            if line.decode() == "SENT FILE":
+                break
+        except:
+            pass
         f.write(line)
         line = sc.recv(1024)
     f.close()
     print("Received image")
-
-    # Close previous connection
-    sc.close()
 
     # Run model on image
     print("Running classifier")
@@ -60,9 +62,7 @@ while True:
 
     # Send output back to client
     print("Sending output")
-    clientSoc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sc.send(output.encode())
 
-    clientSock = ssl.wrap_socket(clientSoc, ssl_version=ssl.PROTOCOL_TLSv1)
-    clientSock.connect((clientIp, clientPort))
-    clientSock.send(output.encode())
-    clientSock.close()
+    # Close connection
+    sc.close()

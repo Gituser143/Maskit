@@ -35,40 +35,15 @@ def sendImage(serverIP, serverPort):
         s.send(line)
         line = f.read(1024)
 
+    finish = "SENT FILE"
+    s.send(finish.encode())
     print("Image sent")
 
-    # Close connection
-    s.close()
-
-
-def receiveClass(clientIP, clientPort):
-
-    # SSL configs
-    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-    context.load_cert_chain(certfile="cert.pem", keyfile="cert.pem")
-
-    # Create server to receive classification
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((clientIP, clientPort))
-    s.listen(1)
-    print("Accepting Connections")
-
-    # Accept connection
-    soc, address = s.accept()
-
-    # Wrap with SSL
-    sc = context.wrap_socket(soc, server_side=True)
-
-    # Receive response
-    print("Received connection")
-    line = sc.recv(1024)
+    line = s.recv(1024)
     mask = line.decode()
     print("Message:", mask)
-
     # Close connection
-    sc.close()
-
-    return mask
+    s.close()
 
 
 while(1):
@@ -82,7 +57,7 @@ while(1):
     sendImage(serverIP, serverPort)
 
     # Recive classification
-    mask = receiveClass(clientIP, clientPort)
+    # mask = receiveClass(clientIP, clientPort)
 
     # If Mask = -1
     # Continue (Restart)
