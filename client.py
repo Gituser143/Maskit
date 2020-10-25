@@ -76,5 +76,8 @@ while(1):
     # Recive classification
     mask = receiveClass(clientIP, clientPort)
 
+    # If Mask = -1
+    # Continue (Restart)
+
     # If mask
     # Rotate motor to open door

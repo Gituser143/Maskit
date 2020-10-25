@@ -36,6 +36,7 @@ def mask_image():
     net.setInput(blob)
     detections = net.forward()
 
+    faceFound = False
     # loop over the detections
     for i in range(0, detections.shape[2]):
         # extract the confidence (i.e., probability) associated with
@@ -71,6 +72,10 @@ def mask_image():
             # 1 means mask was found, 0 if not
             label = "1" if mask > withoutMask else "0"
             print(label)
+            faceFound = True
+
+    if not faceFound:
+        print("-1")
 
 
 if __name__ == "__main__":
