@@ -75,8 +75,9 @@ def mask_image():
             # Append 1 or 0 for everyone in the image captured
             masklist.append(label)
 
-    # Even if a single person is not wearing a mask we consider status 0
-    if "0" in masklist:
+    if len(masklist) == 0:
+        print("-1")
+    elif "0" in masklist:
         print("0")
     else:
         print("1")
