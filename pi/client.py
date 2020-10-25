@@ -1,7 +1,7 @@
 import socket
 import subprocess
 import os
-
+import ssl
 # Initialise hosts and ports
 serverIP = "192.168.1.3"
 serverPort = 9999
@@ -22,7 +22,8 @@ def captureImage():
 def sendImage(serverIP, serverPort):
 
     # Connect to server
-    s = socket.socket()
+    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s = ssl.wrap_socket(soc, ssl_version=ssl.PROTOCOL_TLSv1)
     s.connect((serverIP, serverPort))
     print("Connected to server")
 
@@ -68,7 +69,7 @@ while(1):
 
     # If RFID is valid
     # Capture image
-    captureImage()
+    # captureImage()
 
     # Send image to server
     sendImage(serverIP, serverPort)
@@ -81,3 +82,4 @@ while(1):
 
     # If mask
     # Rotate motor to open door
+    break

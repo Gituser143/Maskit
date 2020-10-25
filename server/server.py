@@ -1,6 +1,7 @@
 import socket
 import subprocess
 import datetime
+import ssl
 
 # Initialise hosts and ports
 cmd = "hostname -I"
@@ -11,8 +12,12 @@ serverPort = 9999
 
 clientPort = 8888
 
+# SSL configs
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+context.load_cert_chain(certfile="cert.pem", keyfile="cert.pem")
+
 # Start server to receive image
-s = socket.socket()
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((serverIP, serverPort))
 s.listen(10)  # Accepts up to 10 connections.
 
@@ -21,7 +26,8 @@ print("Listening for connections")
 while True:
 
     # Accept connection
-    sc, address = s.accept()
+    soc, address = s.accept()
+    sc = context.wrap_socket(soc, server_side=True)
 
     # Get client hostname
     clientIp = address[0]
