@@ -43,14 +43,21 @@ def sendImage(serverIP, serverPort):
 
 def receiveClass(clientIP, clientPort):
 
+    # SSL configs
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+    context.load_cert_chain(certfile="cert.pem", keyfile="cert.pem")
+
     # Create server to receive classification
-    s = socket.socket()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((clientIP, clientPort))
     s.listen(1)
     print("Accepting Connections")
 
     # Accept connection
-    sc, address = s.accept()
+    soc, address = s.accept()
+
+    # Wrap with SSL
+    sc = context.wrap_socket(soc, server_side=True)
 
     # Receive response
     print("Received connection")

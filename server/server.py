@@ -27,6 +27,8 @@ while True:
 
     # Accept connection
     soc, address = s.accept()
+
+    # Wrap with SSL
     sc = context.wrap_socket(soc, server_side=True)
 
     # Get client hostname
@@ -58,7 +60,9 @@ while True:
 
     # Send output back to client
     print("Sending output")
-    clientSock = socket.socket()
+    clientSoc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    clientSock = ssl.wrap_socket(clientSoc, ssl_version=ssl.PROTOCOL_TLSv1)
     clientSock.connect((clientIp, clientPort))
     clientSock.send(output.encode())
     clientSock.close()
