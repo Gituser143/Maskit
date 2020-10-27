@@ -2,7 +2,7 @@ import socket
 import subprocess
 import datetime
 import ssl
-
+import os
 # Initialise hosts and ports
 cmd = "hostname -I"
 output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
@@ -13,6 +13,10 @@ serverPort = 9999
 clientPort = 8888
 
 # SSL configs
+if not os.path.exists("cert.pem"):
+    print("Cannot find certfile 'cert.pem', please create one using openssl")
+    exit(1)
+
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
 context.load_cert_chain(certfile="cert.pem", keyfile="cert.pem")
 
