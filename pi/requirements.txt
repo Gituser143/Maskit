@@ -1,3 +1,2 @@
-socket
+sockets
 ssl
-os
