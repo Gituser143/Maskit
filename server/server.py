@@ -3,6 +3,21 @@ import subprocess
 import datetime
 import ssl
 import os
+
+
+# Colours for logs and messages
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 # Initialise hosts and ports
 cmd = "hostname -I"
 output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
@@ -14,7 +29,7 @@ clientPort = 8888
 
 # SSL configs
 if not os.path.exists("cert.pem"):
-    print("Cannot find certfile 'cert.pem', please create one using openssl")
+    print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Cannot find certfile 'cert.pem', please create one using openssl" + bcolors.ENDC + bcolors.ENDC)
     exit(1)
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
@@ -25,7 +40,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((serverIP, serverPort))
 s.listen(10)  # Accepts up to 10 connections.
 
-print("Listening for connections")
+print(bcolors.OKGREEN + "Listening for connections" + bcolors.ENDC)
 
 while True:
 
@@ -38,7 +53,7 @@ while True:
     # Get client hostname
     clientIp = address[0]
 
-    print("Got connection from", clientIp)
+    print(bcolors.OKGREEN + "Got connection from", clientIp + bcolors.ENDC)
 
     # Create file with name timestamp
     ct = datetime.datetime.now()
@@ -58,22 +73,22 @@ while True:
         f.write(line)
         line = ssock.recv(1024)
     f.close()
-    print("Received image")
+    print(bcolors.OKGREEN + "Received image" + bcolors.ENDC)
 
     # Run model on image
     try:
-        print("Running classifier")
+        print(bcolors.OKGREEN + "Running classifier" + bcolors.ENDC)
         cmd = "python3 detect_mask_image.py --image '" + filename + "'"
         output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
-        print("Mask:", output)
+        print(bcolors.OKGREEN + "Mask: " + output + bcolors.ENDC)
     except:
-        print("Failed to process image, skipping")
+        print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Failed to process image, skipping" + bcolors.ENDC + bcolors.ENDC)
         ssock.send("-1".encode())
         ssock.close()
         continue
 
     # Send output back to client
-    print("Sending output")
+    print(bcolors.OKGREEN + "Sending output" + bcolors.ENDC)
     ssock.send(output.encode())
 
     # Close connection

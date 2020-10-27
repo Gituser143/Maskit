@@ -3,6 +3,19 @@ import os
 import ssl
 
 
+# Colours for logs and messages
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 # Initialise hosts and ports
 serverIP = "192.168.1.3"
 serverPort = 9999
@@ -22,10 +35,10 @@ def sendImage(serverIP, serverPort):
     # SSL wrap
     ssock = ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLSv1)
     ssock.connect((serverIP, serverPort))
-    print("Connected to server")
+    print(bcolors.OKGREEN + "Connected to server" + bcolors.ENDC)
 
     # Send image
-    print("Sending image")
+    print(bcolors.OKGREEN + "Sending image" + bcolors.ENDC)
     f = open("image.jpg", "rb")
     line = f.read(1024)
     while (line):
@@ -35,12 +48,11 @@ def sendImage(serverIP, serverPort):
     # Send finish message
     finish = "SENT FILE"
     ssock.send(finish.encode())
-    print("Image sent")
+    print(bcolors.OKGREEN + "Image sent" + bcolors.ENDC)
 
     # Receive classification
     line = ssock.recv(1024)
     mask = line.decode()
-    print("Message:", mask)
 
     # Close connection
     ssock.close()
@@ -56,8 +68,16 @@ while(1):
     #   captureImage()
 
     # Send image to server
-    mask = sendImage(serverIP, serverPort)
-    print(mask)
+    mask = -1
+    try:
+        mask = sendImage(serverIP, serverPort)
+    except:
+        print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Failed to send image." + bcolors.ENDC + bcolors.ENDC)
+        # Continue in production, exit only in dev
+        exit(1)
+        # continue
+
+    print(bcolors.OKCYAN + bcolors.BOLD + "Class: " + str(mask) + bcolors.ENDC + bcolors.ENDC)
 
     # if Mask == -1
     #   Restart
