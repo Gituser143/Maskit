@@ -57,10 +57,16 @@ while True:
     print("Received image")
 
     # Run model on image
-    print("Running classifier")
-    cmd = "python3 detect_mask_image.py --image '" + filename + "'"
-    output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
-    print("Mask:", output)
+    try:
+        print("Running classifier")
+        cmd = "python3 detect_mask_image.py --image '" + filename + "'"
+        output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
+        print("Mask:", output)
+    except:
+        print("Failed to process image, skipping")
+        ssock.send("-1".encode())
+        ssock.close()
+        continue
 
     # Send output back to client
     print("Sending output")
