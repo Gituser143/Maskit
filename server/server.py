@@ -1,6 +1,7 @@
 import socket
 import subprocess
 import datetime
+import ssl
 
 # Initialise hosts and ports
 cmd = "hostname -I"
@@ -11,8 +12,12 @@ serverPort = 9999
 
 clientPort = 8888
 
+# SSL configs
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+context.load_cert_chain(certfile="cert.pem", keyfile="cert.pem")
+
 # Start server to receive image
-s = socket.socket()
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((serverIP, serverPort))
 s.listen(10)  # Accepts up to 10 connections.
 
@@ -21,7 +26,10 @@ print("Listening for connections")
 while True:
 
     # Accept connection
-    sc, address = s.accept()
+    sock, address = s.accept()
+
+    # Wrap with SSL
+    ssock = context.wrap_socket(sock, server_side=True)
 
     # Get client hostname
     clientIp = address[0]
@@ -31,18 +39,22 @@ while True:
     # Create file with name timestamp
     ct = datetime.datetime.now()
     filename = str(ct) + ".jpg"
-    f = open(filename, 'wb')  # open in binary
+
+    # open in binary
+    f = open(filename, 'wb')
 
     # receive data and write it to file
-    line = sc.recv(1024)
+    line = ssock.recv(1024)
     while (line):
+        try:
+            if line.decode() == "SENT FILE":
+                break
+        except:
+            pass
         f.write(line)
-        line = sc.recv(1024)
+        line = ssock.recv(1024)
     f.close()
     print("Received image")
-
-    # Close previous connection
-    sc.close()
 
     # Run model on image
     print("Running classifier")
@@ -52,7 +64,7 @@ while True:
 
     # Send output back to client
     print("Sending output")
-    clientSock = socket.socket()
-    clientSock.connect((clientIp, clientPort))
-    clientSock.send(output.encode())
-    clientSock.close()
+    ssock.send(output.encode())
+
+    # Close connection
+    ssock.close()
