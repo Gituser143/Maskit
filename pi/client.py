@@ -56,7 +56,12 @@ def sendImage(serverIP, serverPort):
 
     # SSL wrap
     ssock = ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLSv1)
-    ssock.connect((serverIP, serverPort))
+    try:
+        ssock.connect((serverIP, serverPort))
+    except "ConnectionRefusedError":
+        ip = input("Re enter IP")
+        serverIP = ip.strip()
+
     print(bcolors.OKGREEN + "Connected to server" + bcolors.ENDC)
 
     # Send image

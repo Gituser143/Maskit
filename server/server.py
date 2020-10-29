@@ -40,7 +40,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((serverIP, serverPort))
 s.listen(10)  # Accepts up to 10 connections.
 
-print(bcolors.OKGREEN + "Listening for connections" + bcolors.ENDC)
+print(bcolors.OKGREEN + "Listening for connections on " + serverIP + bcolors.ENDC)
 
 while True:
 
