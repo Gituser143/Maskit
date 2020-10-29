@@ -34,6 +34,7 @@ def openDoor():
     p.ChangeDutyCycle(12.5)
     time.sleep(5)
     p.ChangeDutyCycle(2.5)
+    time.sleep(5)
 
 
 def captureImage():
@@ -79,8 +80,9 @@ while(1):
     # Scan RFID tag
     # validRFID = scanRFID()
     # if validRFID:
+    
     #   Capture image
-    #   captureImage()
+    captureImage()
 
     # Send image to server
     mask = -1
