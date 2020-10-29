@@ -24,12 +24,23 @@ output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
 
 serverIP = output.split()[0]
 serverPort = 9999
-
 clientPort = 8888
+
+
+def printMessage(type, message):
+    if type == "LOG":
+        print(bcolors.OKGREEN + message + bcolors.ENDC)
+
+    elif type == "ERROR":
+        print(bcolors.FAIL + bcolors.BOLD + message + bcolors.ENDC + bcolors.ENDC)
+
+    else:
+        print(bcolors.OKCYAN + bcolors.BOLD + message + bcolors.ENDC + bcolors.ENDC)
+
 
 # SSL configs
 if not os.path.exists("cert.pem"):
-    print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Cannot find certfile 'cert.pem', please create one using openssl" + bcolors.ENDC + bcolors.ENDC)
+    printMessage("ERROR", "[ERROR] Cannot find certfile 'cert.pem', please create one using openssl" )
     exit(1)
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
@@ -40,7 +51,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((serverIP, serverPort))
 s.listen(10)  # Accepts up to 10 connections.
 
-print(bcolors.OKGREEN + "Listening for connections on " + serverIP + bcolors.ENDC)
+printMessage("LOG", "Listening for connections on " + str(serverIP) )
 
 while True:
 
@@ -53,7 +64,7 @@ while True:
     # Get client hostname
     clientIp = address[0]
 
-    print(bcolors.OKGREEN + "Got connection from", clientIp + bcolors.ENDC)
+    printMessage("LOG", "Got connection from " +str(clientIp))
 
     # Create file with name timestamp
     ct = datetime.datetime.now()
@@ -73,22 +84,21 @@ while True:
         f.write(line)
         line = ssock.recv(1024)
     f.close()
-    print(bcolors.OKGREEN + "Received image" + bcolors.ENDC)
+    printMessage("LOG", "Received image")
 
     # Run model on image
     try:
-        print(bcolors.OKGREEN + "Running classifier" + bcolors.ENDC)
+        printMessage("LOG", "Running classifier")
         cmd = "python3 detect_mask_image.py --image '" + filename + "'"
         output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
-        print(bcolors.OKGREEN + "Mask: " + output + bcolors.ENDC)
+        printMessage("LOG", "Mask: " + str(output) )
     except:
-        print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Failed to process image, skipping" + bcolors.ENDC + bcolors.ENDC)
-        ssock.send("-1".encode())
+        printMessage("ERROR", "[ERROR] Failed to process image, skipping")
         ssock.close()
         continue
 
     # Send output back to client
-    print(bcolors.OKGREEN + "Sending output" + bcolors.ENDC)
+    printMessage("LOG", "Sending output")
     ssock.send(output.encode())
 
     # Close connection
