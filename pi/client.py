@@ -35,8 +35,6 @@ def scanRFID():
     line = input("0 for inavlid ID, 1 for valid: ")
     if line == "1":
         return True
-    elif line == "EXIT":
-        exit(0)
     else:
         return False
 
@@ -56,11 +54,7 @@ def sendImage(serverIP, serverPort):
 
     # SSL wrap
     ssock = ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLSv1)
-    try:
-        ssock.connect((serverIP, serverPort))
-    except "ConnectionRefusedError":
-        ip = input("Re enter IP")
-        serverIP = ip.strip()
+    ssock.connect((serverIP, serverPort))
 
     print(bcolors.OKGREEN + "Connected to server" + bcolors.ENDC)
 
@@ -117,11 +111,14 @@ while(1):
         continue
 
     if not validRFID:
-        continue
+        break
 
     # Capture image
     try:
         captureImage()
+    except "ConnectionRefusedError":
+        ip = input("Re enter IP")
+        serverIP = ip.strip()
     except:
         printMessage("ERROR", "[ERROR] Failed to capture image.")
         continue
