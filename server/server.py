@@ -40,7 +40,7 @@ def printMessage(type, message):
 
 # SSL configs
 if not os.path.exists("cert.pem"):
-    printMessage("ERROR", "[ERROR] Cannot find certfile 'cert.pem', please create one using openssl" )
+    printMessage("ERROR", "[ERROR] Cannot find certfile 'cert.pem', please create one using openssl")
     exit(1)
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
@@ -51,7 +51,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((serverIP, serverPort))
 s.listen(10)  # Accepts up to 10 connections.
 
-printMessage("LOG", "Listening for connections on " + str(serverIP) )
+printMessage("LOG", "Listening for connections on " + str(serverIP))
 
 while True:
 
@@ -64,7 +64,7 @@ while True:
     # Get client hostname
     clientIp = address[0]
 
-    printMessage("LOG", "Got connection from " +str(clientIp))
+    printMessage("LOG", "Got connection from " + str(clientIp))
 
     # Create file with name timestamp
     ct = datetime.datetime.now()
@@ -91,7 +91,7 @@ while True:
         printMessage("LOG", "Running classifier")
         cmd = "python3 detect_mask_image.py --image '" + filename + "'"
         output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
-        printMessage("LOG", "Mask: " + str(output) )
+        printMessage("LOG", "Mask: " + str(output))
     except:
         printMessage("ERROR", "[ERROR] Failed to process image, skipping")
         ssock.close()
