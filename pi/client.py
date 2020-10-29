@@ -125,8 +125,10 @@ while(1):
     try:
         mask = sendImage(serverIP, serverPort)
     except "ConnectionRefusedError":
-        ip = input("Re enter IP")
+        printMessage("ERROR", "Could not connect to host " + serverIP)
+        ip = input("Re enter IP: ")
         serverIP = ip.strip()
+        continue
     except:
         printMessage("ERROR", "[ERROR] Failed to send image.")
         continue
