@@ -35,6 +35,8 @@ def scanRFID():
     line = input("0 for inavlid ID, 1 for valid: ")
     if line == "1":
         return True
+    elif line == "EXIT":
+        exit(0)
     else:
         return False
 
