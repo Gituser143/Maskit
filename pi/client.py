@@ -137,7 +137,7 @@ while(1):
     if mask == 1:
         try:
             openDoor()
-            GPIO.cleanup()  
+            GPIO.cleanup()
 
         except:
             printMessage("ERROR", "[ERROR] Failed to open door.")
