@@ -4,6 +4,7 @@ import ssl
 import RPi.GPIO as GPIO
 import time
 
+
 # Colours for logs and messages
 class bcolors:
     HEADER = '\033[95m'
@@ -26,23 +27,26 @@ servoPIN = 17
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(servoPIN, GPIO.OUT)
 
-p = GPIO.PWM(servoPIN, 50) # GPIO 17 for PWM with 50Hz
-p.start(2.5) # Initialization
+p = GPIO.PWM(servoPIN, 50)  # GPIO 17 for PWM with 50Hz
+p.start(2.5)  # Initial position
 
 
-def openDoor():
-    p.ChangeDutyCycle(12.5)
-    time.sleep(5)
-    p.ChangeDutyCycle(2.5)
-    time.sleep(5)
+def scanRFID():
+    line = input("0 for inavlid ID, 1 for valid: ")
+    if line == "1":
+        return True
+    else:
+        return False
 
 
+# Capture image with pi cam
 def captureImage():
     os.system("rm -f image.jpg")
     cmd = "raspistill -q 100 -t 200 -o image.jpg"
     os.system(cmd)
 
 
+# Send image to server
 def sendImage(serverIP, serverPort):
 
     # Connect to server
@@ -76,13 +80,32 @@ def sendImage(serverIP, serverPort):
     return int(mask)
 
 
+# Open door with servo motor
+def openDoor():
+    p.ChangeDutyCycle(12.5)
+    time.sleep(5)
+    p.ChangeDutyCycle(2.5)
+    time.sleep(5)
+
+
 while(1):
     # Scan RFID tag
-    # validRFID = scanRFID()
-    # if validRFID:
-    
-    #   Capture image
-    captureImage()
+    validRFID = False
+    try:
+        validRFID = scanRFID()
+    except:
+        print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Failed to scan RFID." + bcolors.ENDC + bcolors.ENDC)
+        continue
+
+    if not validRFID:
+        continue
+
+    # Capture image
+    try:
+        captureImage()
+    except:
+        print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Failed to capture image." + bcolors.ENDC + bcolors.ENDC)
+        continue
 
     # Send image to server
     mask = -1
@@ -90,9 +113,7 @@ while(1):
         mask = sendImage(serverIP, serverPort)
     except:
         print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Failed to send image." + bcolors.ENDC + bcolors.ENDC)
-        # Continue in production, exit only in dev
-        exit(1)
-        # continue
+        continue
 
     print(bcolors.OKCYAN + bcolors.BOLD + "Class: " + str(mask) + bcolors.ENDC + bcolors.ENDC)
 
@@ -102,6 +123,8 @@ while(1):
 
     #   openDoor()
     if mask == 1:
-        openDoor()
-
-    break
+        try:
+            openDoor()
+        except:
+            print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Failed to open door." + bcolors.ENDC + bcolors.ENDC)
+            continue
