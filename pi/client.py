@@ -88,13 +88,25 @@ def openDoor():
     time.sleep(5)
 
 
+def printMessage(type, message):
+    if type == "LOG":
+        print(bcolors.OKGREEN + message + bcolors.ENDC)
+
+    elif type == "ERROR":
+        print(bcolors.FAIL + bcolors.BOLD + message + bcolors.ENDC + bcolors.ENDC)
+
+    else:
+        print(bcolors.OKCYAN + bcolors.BOLD + message + bcolors.ENDC + bcolors.ENDC)
+
+
 while(1):
+
     # Scan RFID tag
     validRFID = False
     try:
         validRFID = scanRFID()
     except:
-        print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Failed to scan RFID." + bcolors.ENDC + bcolors.ENDC)
+        printMessage("ERROR", "[ERROR] Failed to scan RFID.")
         continue
 
     if not validRFID:
@@ -104,7 +116,7 @@ while(1):
     try:
         captureImage()
     except:
-        print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Failed to capture image." + bcolors.ENDC + bcolors.ENDC)
+        printMessage("ERROR", "[ERROR] Failed to capture image.")
         continue
 
     # Send image to server
@@ -112,19 +124,19 @@ while(1):
     try:
         mask = sendImage(serverIP, serverPort)
     except:
-        print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Failed to send image." + bcolors.ENDC + bcolors.ENDC)
+        printMessage("ERROR", "[ERROR] Failed to send image.")
         continue
 
-    print(bcolors.OKCYAN + bcolors.BOLD + "Class: " + str(mask) + bcolors.ENDC + bcolors.ENDC)
+    printMessage("CLASS", "Class: " + str(mask))
 
-    #   Restart
+    # Restart
     if mask == -1:
         continue
 
-    #   openDoor()
+    # Open door
     if mask == 1:
         try:
             openDoor()
         except:
-            print(bcolors.FAIL + bcolors.BOLD + "[ERROR] Failed to open door." + bcolors.ENDC + bcolors.ENDC)
+            printMessage("ERROR", "[ERROR] Failed to open door.")
             continue
