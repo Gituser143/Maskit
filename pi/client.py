@@ -116,9 +116,6 @@ while(1):
     # Capture image
     try:
         captureImage()
-    except "ConnectionRefusedError":
-        ip = input("Re enter IP")
-        serverIP = ip.strip()
     except:
         printMessage("ERROR", "[ERROR] Failed to capture image.")
         continue
@@ -127,6 +124,9 @@ while(1):
     mask = -1
     try:
         mask = sendImage(serverIP, serverPort)
+    except "ConnectionRefusedError":
+        ip = input("Re enter IP")
+        serverIP = ip.strip()
     except:
         printMessage("ERROR", "[ERROR] Failed to send image.")
         continue
