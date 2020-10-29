@@ -1,7 +1,8 @@
 import socket
 import os
 import ssl
-
+import RPi.GPIO as GPIO
+import time
 
 # Colours for logs and messages
 class bcolors:
@@ -19,6 +20,20 @@ class bcolors:
 # Initialise hosts and ports
 serverIP = "192.168.1.3"
 serverPort = 9999
+
+# Initialisation for servo motor
+servoPIN = 17
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(servoPIN, GPIO.OUT)
+
+p = GPIO.PWM(servoPIN, 50) # GPIO 17 for PWM with 50Hz
+p.start(2.5) # Initialization
+
+
+def openDoor():
+    p.ChangeDutyCycle(12.5)
+    time.sleep(5)
+    p.ChangeDutyCycle(2.5)
 
 
 def captureImage():
@@ -79,11 +94,12 @@ while(1):
 
     print(bcolors.OKCYAN + bcolors.BOLD + "Class: " + str(mask) + bcolors.ENDC + bcolors.ENDC)
 
-    # if Mask == -1
     #   Restart
-    #   Continue
+    if mask == -1:
+        continue
 
-    # if mask == 1
     #   openDoor()
+    if mask == 1:
+        openDoor()
 
     break
