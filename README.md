@@ -72,8 +72,3 @@ python3 client.py
 ```
 
 ### Voila! That should be all!
-
-Credits
-=======
-
-Credits to [Chandrika Deb](https://github.com/chandrikadeb7), for the awesome mask detection [model](https://github.com/chandrikadeb7/Face-Mask-Detection)!
