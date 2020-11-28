@@ -19,7 +19,7 @@ class bcolors:
 
 
 # Initialise hosts and ports
-serverIP = "192.168.1.3"
+serverIP = "192.168.1.2"
 serverPort = 9999
 
 # Initialisation for servo motor

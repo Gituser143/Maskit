@@ -24,7 +24,6 @@ output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
 
 serverIP = output.split()[0]
 serverPort = 9999
-clientPort = 8888
 
 
 def printMessage(type, message):
