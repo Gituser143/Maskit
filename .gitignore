@@ -2,4 +2,4 @@
 *.png
 *.pem
 .mypy_cache
-__pycahe__
+__pycache__
