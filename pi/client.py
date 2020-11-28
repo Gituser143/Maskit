@@ -21,7 +21,7 @@ class bcolors:
 
 
 # Initialise hosts and ports
-serverIP = "192.168.1.2"
+serverIP = "192.168.1.3"
 serverPort = 9999
 
 # Initialisation for servo motor
@@ -32,16 +32,20 @@ GPIO.setup(servoPIN, GPIO.OUT)
 p = GPIO.PWM(servoPIN, 50)  # GPIO 17 for PWM with 50Hz
 p.start(2.5)  # Initial position
 
+validRFIDs = []
 
-def scanRFID():
-    line = input("0 for inavlid ID, 1 for valid: ")
-    if line == "1":
-        return True
-    else:
-        return False
 
+def initRFIDs():
+    with open("valid_rfids.txt", "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            rfid = line.strip()
+            rfid = [int(i) for i in rfid.split(",")]
+            validRFIDs.append(rfid)
 
 # Capture image with pi cam
+
+
 def captureImage():
     os.system("rm -f image.jpg")
     cmd = "raspistill -q 100 -t 200 -o image.jpg"
@@ -101,59 +105,51 @@ def printMessage(type, message):
     else:
         print(bcolors.OKCYAN + bcolors.BOLD + message + bcolors.ENDC + bcolors.ENDC)
 
+
 def scanRFID():
-    continue_reading = True
 
     MIFAREReader = MFRC522.MFRC522()
 
-    while continue_reading:
+    while True:
 
         # Scan for cards
-        (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
+        (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
         # If a card is found
         if status == MIFAREReader.MI_OK:
-            print ("Card detected")
 
-        # Get the UID of the card
-        (status,uid) = MIFAREReader.MFRC522_Anticoll()
-
-        # If we have the UID, continue
-        if status == MIFAREReader.MI_OK:
-
-            # Print UID
-            print ("Card read UID:", uid[0], uid[1], uid[2], uid[3])
-
-            # This is the default key for authentication
-            key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
-            # Select the scanned tag
-            MIFAREReader.MFRC522_SelectTag(uid)
+            printMessage("LOG", "Scanned Card")
+            # Get the UID of the card
+            (status, uid) = MIFAREReader.MFRC522_Anticoll()
 
             # Authenticate
-            status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 8, key, uid)
-
-            # Check if authenticated
-            if status == MIFAREReader.MI_OK:
-                MIFAREReader.MFRC522_Read(8)
-                MIFAREReader.MFRC522_StopCrypto1()
+            if uid in validRFIDs:
+                printMessage("VALID", "Valid RFID card")
+                return
             else:
-                print ("Authentication error")
+                printMessage("ERROR", "Invalid RFID card")
+                continue
 
-            break;
 
-while(1):
+def cleanup(signal, frame):
+    global continueReading
+    GPIO.cleanup()
+    continueReading = False
 
-    # Scan RFID tag
-    # validRFID = False
-    # try:
-    #     scanRFID()
-    # except:
-    #     printMessage("ERROR", "[ERROR] Failed to scan RFID.")
-    #     continue
 
-    # if not validRFID:
-    #     break
-    scanRFID()
+signal.signal(signal.SIGINT, cleanup)
+
+initRFIDs()
+continueReading = True
+
+while continueReading:
+
+    # Scan RFID
+    try:
+        scanRFID()
+    except:
+        printMessage("ERROR", "[ERROR] Failed to scan RFID.")
+        continue
 
     # Capture image
     try:
@@ -190,5 +186,3 @@ while(1):
         except:
             printMessage("ERROR", "[ERROR] Failed to open door.")
             continue
-
-    GPIO.cleanup()
