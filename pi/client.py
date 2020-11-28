@@ -104,15 +104,6 @@ def printMessage(type, message):
 def scanRFID():
     continue_reading = True
 
-    def end_read(signal,frame):
-        global continue_reading
-        print("Ctrl+C captured, ending read.")
-        continue_reading = False
-        GPIO.cleanup()
-
-    # Hook the SIGINT
-    signal.signal(signal.SIGINT, end_read)
-
     MIFAREReader = MFRC522.MFRC522()
 
     while continue_reading:
