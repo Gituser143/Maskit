@@ -3,6 +3,8 @@ import os
 import ssl
 import RPi.GPIO as GPIO
 import time
+import MFRC522
+import signal
 
 
 # Colours for logs and messages
