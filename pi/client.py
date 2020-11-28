@@ -108,9 +108,10 @@ def printMessage(type, message):
 
 def scanRFID():
 
+    global continueReading
     MIFAREReader = MFRC522.MFRC522()
 
-    while True:
+    while continueReading:
 
         # Scan for cards
         (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
