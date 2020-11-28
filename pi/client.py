@@ -158,7 +158,7 @@ def logToCloud(rfid):
     message["time"] = str(datetime.datetime.now())
 
     myMQTTClient.publish(
-        topic="Maskit-Logs",
+        topic="home/Maskit",
         QoS=1,
         payload=str(message)
     )
@@ -216,8 +216,7 @@ while continueReading:
     # Open door
     if mask == 1:
         try:
-            logger = threading.Thread(target=logToCloud, args=(currentRFID,))
-            logger.start()
+            logToCloud(currentRFID)
 
             openDoor()
             GPIO.cleanup()
