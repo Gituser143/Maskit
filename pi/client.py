@@ -148,3 +148,5 @@ while(1):
         except:
             printMessage("ERROR", "[ERROR] Failed to open door.")
             continue
+
+    GPIO.cleanup()
