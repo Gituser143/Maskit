@@ -101,19 +101,68 @@ def printMessage(type, message):
     else:
         print(bcolors.OKCYAN + bcolors.BOLD + message + bcolors.ENDC + bcolors.ENDC)
 
+def scanRFID():
+    continue_reading = True
+
+    def end_read(signal,frame):
+        global continue_reading
+        print("Ctrl+C captured, ending read.")
+        continue_reading = False
+        GPIO.cleanup()
+
+    # Hook the SIGINT
+    signal.signal(signal.SIGINT, end_read)
+
+    MIFAREReader = MFRC522.MFRC522()
+
+    while continue_reading:
+
+        # Scan for cards
+        (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
+
+        # If a card is found
+        if status == MIFAREReader.MI_OK:
+            print ("Card detected")
+
+        # Get the UID of the card
+        (status,uid) = MIFAREReader.MFRC522_Anticoll()
+
+        # If we have the UID, continue
+        if status == MIFAREReader.MI_OK:
+
+            # Print UID
+            print ("Card read UID:", uid[0], uid[1], uid[2], uid[3])
+
+            # This is the default key for authentication
+            key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
+            # Select the scanned tag
+            MIFAREReader.MFRC522_SelectTag(uid)
+
+            # Authenticate
+            status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 8, key, uid)
+
+            # Check if authenticated
+            if status == MIFAREReader.MI_OK:
+                MIFAREReader.MFRC522_Read(8)
+                MIFAREReader.MFRC522_StopCrypto1()
+            else:
+                print ("Authentication error")
+
+            break;
 
 while(1):
 
     # Scan RFID tag
-    validRFID = False
-    try:
-        validRFID = scanRFID()
-    except:
-        printMessage("ERROR", "[ERROR] Failed to scan RFID.")
-        continue
+    # validRFID = False
+    # try:
+    #     scanRFID()
+    # except:
+    #     printMessage("ERROR", "[ERROR] Failed to scan RFID.")
+    #     continue
 
-    if not validRFID:
-        break
+    # if not validRFID:
+    #     break
+    scanRFID()
 
     # Capture image
     try:
