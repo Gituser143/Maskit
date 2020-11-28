@@ -2,3 +2,4 @@
 *.png
 *.pem
 .mypy_cache
+__pycahe__
