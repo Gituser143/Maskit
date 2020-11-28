@@ -5,6 +5,10 @@ import RPi.GPIO as GPIO
 import time
 import MFRC522
 import signal
+import datetime
+import threading
+
+from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
 
 # Colours for logs and messages
@@ -115,6 +119,8 @@ def scanRFID():
     (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
     # If a card is found
+    global currentRFID
+    currentRFID = []
     if status == MIFAREReader.MI_OK:
 
         printMessage("LOG", "Scanned Card")
@@ -124,10 +130,38 @@ def scanRFID():
         # Authenticate
         if uid in validRFIDs:
             printMessage("VALID", "Valid RFID card")
+            currentRFID = uid
             return True
         else:
             printMessage("ERROR", "Invalid RFID card")
             return False
+
+
+def logToCloud(rfid):
+
+    myMQTTClient = AWSIoTMQTTClient("clientid")
+    myMQTTClient.configureEndpoint("a26zkbv9c1bz6c-ats.iot.eu-west-2.amazonaws.com", 8883)
+    myMQTTClient.configureCredentials("/home/pi/Maskit/pi/root-ca.pem", "/home/pi/Maskit/pi/private.pem.key", "/home/pi/Maskit/pi/certificate.pem.crt")
+    myMQTTClient.configureOfflinePublishQueueing(-1)
+    myMQTTClient.configureDrainingFrequency(2)
+    myMQTTClient.configureConnectDisconnectTimeout(10)
+    myMQTTClient.configureMQTTOperationTimeout(5)
+
+    myMQTTClient.connect()
+
+    printMessage("LOG", "Publishing message")
+
+    message = dict()
+
+    rfid = [str(i) for i in rfid]
+    message["user"] = str("-".join(rfid))
+    message["time"] = str(datetime.datetime.now())
+
+    myMQTTClient.publish(
+        topic="Maskit-Logs",
+        QoS=1,
+        payload=str(message)
+    )
 
 
 def cleanup(signal, frame):
@@ -140,13 +174,13 @@ signal.signal(signal.SIGINT, cleanup)
 
 initRFIDs()
 continueReading = True
+currentRFID = []
 
 while continueReading:
 
     # Scan RFID
     try:
         isValid = scanRFID()
-
         if not isValid:
             continue
     except:
@@ -182,6 +216,9 @@ while continueReading:
     # Open door
     if mask == 1:
         try:
+            logger = threading.Thread(target=logToCloud, args=(currentRFID,))
+            logger.start()
+
             openDoor()
             GPIO.cleanup()
 

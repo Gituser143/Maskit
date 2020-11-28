@@ -8,7 +8,7 @@ myMQTTClient.configureOfflinePublishQueueing(-1)
 myMQTTClient.configureDrainingFrequency(2)
 myMQTTClient.configureConnectDisconnectTimeout(10)
 myMQTTClient.configureMQTTOperationTimeout(5)
- 
+
 # logger.info("Connecting...")
 print("Initiating IoT Core Topic ...")
 myMQTTClient.connect()
@@ -17,4 +17,4 @@ print("Publishing message from RPI...")
 myMQTTClient.publish(
     topic="home/helloworld",
     QoS=1,
-    payload="{'Message':'Message By RPI'}") 
+    payload="{'Message':'Message By RPI'}")
