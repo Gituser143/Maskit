@@ -111,25 +111,23 @@ def scanRFID():
     global continueReading
     MIFAREReader = MFRC522.MFRC522()
 
-    while continueReading:
+    # Scan for cards
+    (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
-        # Scan for cards
-        (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
+    # If a card is found
+    if status == MIFAREReader.MI_OK:
 
-        # If a card is found
-        if status == MIFAREReader.MI_OK:
+        printMessage("LOG", "Scanned Card")
+        # Get the UID of the card
+        (status, uid) = MIFAREReader.MFRC522_Anticoll()
 
-            printMessage("LOG", "Scanned Card")
-            # Get the UID of the card
-            (status, uid) = MIFAREReader.MFRC522_Anticoll()
-
-            # Authenticate
-            if uid in validRFIDs:
-                printMessage("VALID", "Valid RFID card")
-                return
-            else:
-                printMessage("ERROR", "Invalid RFID card")
-                continue
+        # Authenticate
+        if uid in validRFIDs:
+            printMessage("VALID", "Valid RFID card")
+            return True
+        else:
+            printMessage("ERROR", "Invalid RFID card")
+            return False
 
 
 def cleanup(signal, frame):
@@ -147,7 +145,10 @@ while continueReading:
 
     # Scan RFID
     try:
-        scanRFID()
+        isValid = scanRFID()
+
+        if not isValid:
+            continue
     except:
         printMessage("ERROR", "[ERROR] Failed to scan RFID.")
         continue
