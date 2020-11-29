@@ -6,8 +6,6 @@ import time
 import MFRC522
 import signal
 import datetime
-import threading
-
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
 
@@ -146,7 +144,7 @@ def logToCloud(USER):
 
     myMQTTClient = AWSIoTMQTTClient("clientid")
     myMQTTClient.configureEndpoint("a26zkbv9c1bz6c-ats.iot.eu-west-2.amazonaws.com", 8883)
-    myMQTTClient.configureCredentials("/home/pi/Maskit/pi/root-ca.pem","/home/pi/Maskit/pi/private.pem.key", "/home/pi/Maskit/pi/certificate.pem.crt")
+    myMQTTClient.configureCredentials("/home/pi/Maskit/pi/root-ca.pem", "/home/pi/Maskit/pi/private.pem.key", "/home/pi/Maskit/pi/certificate.pem.crt")
     myMQTTClient.configureOfflinePublishQueueing(-1)
     myMQTTClient.configureDrainingFrequency(2)
     myMQTTClient.configureConnectDisconnectTimeout(10)
