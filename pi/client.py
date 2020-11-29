@@ -36,7 +36,7 @@ GPIO.setup(servoPIN, GPIO.OUT)
 p = GPIO.PWM(servoPIN, 50)  # GPIO 17 for PWM with 50Hz
 p.start(2.5)  # Initial position
 
-validRFIDs = []
+validRFIDs = {}
 
 
 def initRFIDs():
@@ -44,8 +44,12 @@ def initRFIDs():
         lines = f.readlines()
         for line in lines:
             rfid = line.strip()
-            rfid = [int(i) for i in rfid.split(",")]
-            validRFIDs.append(rfid)
+            rfid, SRN = rfid.split(':')
+            rfid = [i for i in rfid.split(",")]
+            rfid = ",".join(rfid)
+            print(rfid)
+            print(SRN)
+            validRFIDs[rfid] = SRN
 
 # Capture image with pi cam
 
@@ -119,29 +123,32 @@ def scanRFID():
     (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
     # If a card is found
-    global currentRFID
-    currentRFID = []
+    global currentUSER
+    currentUSER = ''
     if status == MIFAREReader.MI_OK:
 
         printMessage("LOG", "Scanned Card")
         # Get the UID of the card
         (status, uid) = MIFAREReader.MFRC522_Anticoll()
+        uid = [str(i) for i in uid]
+        uid = ",".join(uid)
 
         # Authenticate
         if uid in validRFIDs:
             printMessage("VALID", "Valid RFID card")
-            currentRFID = uid
+            printMessage("USER:", validRFIDs[uid])
+            currentUSER = validRFIDs[uid]
             return True
         else:
             printMessage("ERROR", "Invalid RFID card")
             return False
 
 
-def logToCloud(rfid):
+def logToCloud(USER):
 
     myMQTTClient = AWSIoTMQTTClient("clientid")
     myMQTTClient.configureEndpoint("a26zkbv9c1bz6c-ats.iot.eu-west-2.amazonaws.com", 8883)
-    myMQTTClient.configureCredentials("/home/pi/Maskit/pi/root-ca.pem", "/home/pi/Maskit/pi/private.pem.key", "/home/pi/Maskit/pi/certificate.pem.crt")
+    myMQTTClient.configureCredentials("/home/pi/Maskit/pi/root-ca.pem","/home/pi/Maskit/pi/private.pem.key", "/home/pi/Maskit/pi/certificate.pem.crt")
     myMQTTClient.configureOfflinePublishQueueing(-1)
     myMQTTClient.configureDrainingFrequency(2)
     myMQTTClient.configureConnectDisconnectTimeout(10)
@@ -153,8 +160,7 @@ def logToCloud(rfid):
 
     message = dict()
 
-    rfid = [str(i) for i in rfid]
-    message["user"] = str("-".join(rfid))
+    message["user"] = USER
     message["time"] = str(datetime.datetime.now())
 
     myMQTTClient.publish(
@@ -174,7 +180,7 @@ signal.signal(signal.SIGINT, cleanup)
 
 initRFIDs()
 continueReading = True
-currentRFID = []
+currentUSER = ''
 
 while continueReading:
 
@@ -216,7 +222,7 @@ while continueReading:
     # Open door
     if mask == 1:
         try:
-            logToCloud(currentRFID)
+            logToCloud(currentUSER)
 
             openDoor()
             GPIO.cleanup()
