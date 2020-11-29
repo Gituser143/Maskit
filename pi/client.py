@@ -25,7 +25,7 @@ class bcolors:
 
 
 # Initialise hosts and ports
-serverIP = "192.168.1.3"
+serverIP = "192.168.1.2"
 serverPort = 9999
 
 # Initialisation for servo motor
@@ -47,8 +47,6 @@ def initRFIDs():
             rfid, SRN = rfid.split(':')
             rfid = [i for i in rfid.split(",")]
             rfid = ",".join(rfid)
-            print(rfid)
-            print(SRN)
             validRFIDs[rfid] = SRN
 
 # Capture image with pi cam
@@ -136,7 +134,7 @@ def scanRFID():
         # Authenticate
         if uid in validRFIDs:
             printMessage("VALID", "Valid RFID card")
-            printMessage("USER:", validRFIDs[uid])
+            printMessage("LOG:", validRFIDs[uid])
             currentUSER = validRFIDs[uid]
             return True
         else:
@@ -204,7 +202,7 @@ while continueReading:
     mask = -1
     try:
         mask = sendImage(serverIP, serverPort)
-    except "ConnectionRefusedError":
+    except ConnectionRefusedError:
         printMessage("ERROR", "Could not connect to host " + serverIP)
         ip = input("Re enter IP: ")
         serverIP = ip.strip()
