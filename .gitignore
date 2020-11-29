@@ -1,5 +1,4 @@
 *.jpg
-*.png
 *.pem
 .mypy_cache
 __pycache__
