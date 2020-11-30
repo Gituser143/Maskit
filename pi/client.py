@@ -23,7 +23,7 @@ class bcolors:
 
 
 # Initialise hosts and ports
-serverIP = "192.168.1.2"
+serverIP = "192.168.1.3"
 serverPort = 9999
 
 # Initialisation for servo motor
@@ -112,7 +112,6 @@ def printMessage(type, message):
 
 def scanRFID():
 
-    global continueReading
     MIFAREReader = MFRC522.MFRC522()
 
     # Scan for cards
@@ -142,6 +141,7 @@ def scanRFID():
 
 def logToCloud(USER):
 
+    # Replace following fields with valid AWS creds
     myMQTTClient = AWSIoTMQTTClient("clientid")
     myMQTTClient.configureEndpoint("a26zkbv9c1bz6c-ats.iot.eu-west-2.amazonaws.com", 8883)
     myMQTTClient.configureCredentials("/home/pi/Maskit/pi/root-ca.pem", "/home/pi/Maskit/pi/private.pem.key", "/home/pi/Maskit/pi/certificate.pem.crt")
@@ -210,10 +210,6 @@ while continueReading:
         continue
 
     printMessage("CLASS", "Class: " + str(mask))
-
-    # Restart
-    if mask == -1:
-        continue
 
     # Open door
     if mask == 1:
