@@ -110,10 +110,12 @@ def printMessage(type, message):
         print(bcolors.OKCYAN + bcolors.BOLD + message + bcolors.ENDC + bcolors.ENDC)
 
 
+MIFAREReader = MFRC522.MFRC522()
+
+
 def scanRFID():
 
-    MIFAREReader = MFRC522.MFRC522()
-
+    global MIFAREReader
     # Scan for cards
     (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
@@ -217,7 +219,6 @@ while continueReading:
             logToCloud(currentUSER)
 
             openDoor()
-            GPIO.cleanup()
 
         except:
             printMessage("ERROR", "[ERROR] Failed to open door.")
