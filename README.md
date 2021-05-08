@@ -154,6 +154,6 @@ python3 client.py
 Credits
 =======
 
--	[Chandrika Deb](https://github.com/chandrikadeb7) for the brilliant [Face Mask Detection](https://github.com/chandrikadeb7/Face-Mask-Detection) system.
+-	[Chandrika Deb](https://github.com/chandrikadeb7) for the brilliant [Face Mask Detection](https://github.com/chandrikadeb7/Face-Mask-Detection) model.
 
 -	[Rishab Kattimani](https://github.com/RishabKattimani) for the awesome [YouTube video](https://youtu.be/kPLafcrng-c) explaining a use case of AWS IoT core with Raspberry Pi.
